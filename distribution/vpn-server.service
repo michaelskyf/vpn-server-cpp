@@ -1,0 +1,18 @@
+[Unit]
+Description=VPN service for %I
+After=syslog.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+PrivateTmp=true
+ExecStart=/usr/bin/vpn-server --config %i.conf
+DeviceAllow=/dev/net/tun rw
+ProtectSystem=true
+ProtectHome=true
+KillMode=process
+RestartSec=5s
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
