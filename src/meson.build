@@ -2,6 +2,7 @@ boost_dep = dependency('boost', modules: [ 'thread', 'coroutine' ])
 
 source_files = files(
 	'mq.cpp',
+	'database/database.cpp',
 )
 
 libvpn = static_library(
