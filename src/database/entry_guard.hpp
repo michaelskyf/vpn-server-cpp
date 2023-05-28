@@ -15,9 +15,9 @@ public:
 
     EntryGuard(const EntryGuard&) = delete;
     EntryGuard(EntryGuard&& other)
-        : m_database_rwlock{other.m_database_rwlock}, m_address{other.m_address}
+        : m_database_rwlock{other.m_database_rwlock}, m_address{other.m_address}, m_destroyed{other.m_destroyed}
     {
-
+        other.m_destroyed = true;
     }
 
     auto get() -> boost::asio::ip::address
@@ -27,10 +27,14 @@ public:
 
     ~EntryGuard()
     {
-        m_database_rwlock->unregister(m_address);
+        if(m_destroyed == false)
+        {
+            m_database_rwlock->unregister(m_address);
+        }
     }
 
 private:
     std::shared_ptr<DB_RWLock> m_database_rwlock;
     boost::asio::ip::address m_address;
+    bool m_destroyed = false;
 };

@@ -1,4 +1,6 @@
 #pragma once
 
-typedef char Packet;
+#include <vector>
+
+typedef std::vector<char> Packet;
 //class Packet{};

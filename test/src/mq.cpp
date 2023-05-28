@@ -9,20 +9,18 @@
 #include <mq.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
+#include <vector>
 
 namespace simple
 {
     auto tx_runner(Sender snd, Packet payload, size_t id) -> boost::asio::awaitable<void>
     {
-        std::cout << "[" << id << "]: Sending payload: " << payload << std::endl;
         co_await snd.async_send(payload);
     }
 
     auto rx_runner(Receiver rcv, size_t id) -> boost::asio::awaitable<void>
     {
         auto char_ptr = co_await rcv.async_receive();
-
-        std::cout << "[" << id << "]: Received payload: " << *char_ptr << std::endl;
     }
 }
 
@@ -36,7 +34,7 @@ TEST(mq, simple)
     Receiver rx(c_ptr);
     
     boost::asio::co_spawn(ioContext, simple::rx_runner(rx, 0), boost::asio::detached);
-    boost::asio::co_spawn(ioContext, simple::tx_runner(tx, 'X', 1), boost::asio::detached);
+    boost::asio::co_spawn(ioContext, simple::tx_runner(tx, {'H', 'E', 'L', 'L', 'O'}, 1), boost::asio::detached);
 
     ioContext.run();
 }

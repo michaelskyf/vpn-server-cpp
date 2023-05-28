@@ -22,7 +22,7 @@ auto Database::register_without_ip() -> boost::optional<ip_mqrx_pair>
     auto sender = Sender(mq);
     auto receiver = Receiver(mq);
 
-    m_map.insert(std::pair<boost::asio::ip::address, Sender>(address, sender));
+    m_map.emplace(address, sender);
 
     return ip_mqrx_pair(address, receiver);
 }
@@ -38,7 +38,7 @@ auto Database::register_with_ip(boost::asio::ip::address address) -> boost::opti
     auto sender = Sender(mq);
     auto receiver = Receiver(mq);
 
-    m_map.insert(std::pair<boost::asio::ip::address, Sender>(address, sender));
+    m_map.emplace(address, sender);
 
     return ip_mqrx_pair(address, receiver);
 }
@@ -54,4 +54,10 @@ auto Database::get(boost::asio::ip::address address) -> boost::optional<Sender>
     {
         return result->second;
     }
+}
+
+auto Database::unregister(boost::asio::ip::address address) -> void
+{
+    m_map.erase(address);
+    m_address_pool.insert(address);
 }
