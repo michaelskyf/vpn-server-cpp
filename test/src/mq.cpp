@@ -32,9 +32,12 @@ TEST(mq, simple)
 
     Sender tx(c_ptr);
     Receiver rx(c_ptr);
+
+    char payload_array[] = "Hello!";
+    Packet payload = Packet::from_bytes_unchecked(payload_array, sizeof(payload_array)/sizeof(*payload_array));
     
     boost::asio::co_spawn(ioContext, simple::rx_runner(rx, 0), boost::asio::detached);
-    boost::asio::co_spawn(ioContext, simple::tx_runner(tx, {'H', 'E', 'L', 'L', 'O'}, 1), boost::asio::detached);
+    boost::asio::co_spawn(ioContext, simple::tx_runner(tx, payload, 1), boost::asio::detached);
 
     ioContext.run();
 }

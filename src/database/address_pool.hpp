@@ -13,7 +13,7 @@ class AddressPool
 {
 public:
     AddressPool(boost::asio::ip::network_v4 net)
-        : m_net{net}
+        : m_hosts{}, m_net{net}
     {
         for(auto h : net.hosts())
         {

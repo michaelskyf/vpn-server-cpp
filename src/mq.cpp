@@ -12,10 +12,10 @@ Receiver::Receiver(std::shared_ptr<Channel>& c)
 
 auto Sender::async_send(Packet packet) -> asio::awaitable<void>
 {
-    return m_channel->async_send(system::error_code{}, std::make_unique<Packet>(packet), asio::use_awaitable);
+    return m_channel->async_send(system::error_code{}, packet, asio::use_awaitable);
 }
 
-auto Receiver::async_receive() -> asio::awaitable<std::unique_ptr<Packet>>
+auto Receiver::async_receive() -> asio::awaitable<Packet>
 {
     return m_channel->async_receive(asio::use_awaitable);
 }

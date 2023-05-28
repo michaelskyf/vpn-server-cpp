@@ -1,4 +1,5 @@
 #include "mq.hpp"
+#include "packet.hpp"
 #include <boost/asio/co_spawn.hpp>
 #include <boost/asio/detached.hpp>
 #include <boost/asio/io_context.hpp>
@@ -32,13 +33,13 @@ namespace database_mq
 {
     auto receive(Receiver rx, std::vector<char>& result) -> boost::asio::awaitable<void>
     {
-        auto got = co_await rx.async_receive();
-        result = *got;
+        auto received = co_await rx.async_receive();
+        result = std::vector<char>(received.data(), received.data()+received.size());
     }
 
     auto send(Sender tx, std::vector<char>& payload) -> boost::asio::awaitable<void>
     {
-        co_await tx.async_send(payload);
+        co_await tx.async_send(Packet::from_bytes_unchecked(payload.data(), payload.size()));
     }
 }
 

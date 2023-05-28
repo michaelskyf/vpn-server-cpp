@@ -11,7 +11,7 @@
 #include "packet.hpp"
 
 using Channel = boost::asio::experimental::concurrent_channel<void(
-        boost::system::error_code, std::unique_ptr<Packet>)>;
+        boost::system::error_code, Packet)>;
 
 class Sender
 {
@@ -29,7 +29,7 @@ class Receiver
 public:
     Receiver(std::shared_ptr<Channel>&);
 
-    auto async_receive() -> boost::asio::awaitable<std::unique_ptr<Packet>>;
+    auto async_receive() -> boost::asio::awaitable<Packet>;
 
 private:
     std::shared_ptr<Channel> m_channel;

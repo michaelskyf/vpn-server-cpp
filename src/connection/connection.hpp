@@ -2,18 +2,13 @@
 
 #include "db_guard.hpp"
 #include "mq.hpp"
+#include "packet.hpp"
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/co_spawn.hpp>
 #include <boost/asio/io_context.hpp>
+#include <boost/asio/ip/address.hpp>
 #include <boost/asio/use_future.hpp>
 #include <optional>
-class Stream
-{
-public:
-    virtual auto read(char*, size_t) -> boost::asio::awaitable<std::optional<size_t>> = 0;
-    virtual auto write(char*, size_t) -> boost::asio::awaitable<std::optional<size_t>> = 0;
-    virtual ~Stream() = default;
-};
 
 class Handler
 {
@@ -28,7 +23,23 @@ public:
     {
         while(true) // TODO shutdown
         {
-            
+            auto packet_option = co_await Packet::from_stream(*m_stream);
+            if(packet_option.has_value() == false)
+            {
+                std::cerr << "Error in handle_incoming()" << std::endl;
+                co_return;
+            }
+
+            auto packet = packet_option.value();
+
+            auto mq_tx_option = m_db_guard.get(packet.dst_address());
+            if(mq_tx_option.has_value() == false)
+            {
+                continue;
+            }
+
+            auto mq_tx = mq_tx_option.get();
+            co_await mq_tx.async_send(packet);
         }
     }
 
@@ -37,7 +48,12 @@ public:
         while(true) // TODO shutdown
         {
             auto packet = co_await mq_rx.async_receive();
-            co_await m_stream->write(packet->data(), packet->size());
+            auto written_option = co_await m_stream->write(packet.data(), packet.size());
+            if(written_option.has_value() == false)
+            {
+                std::cerr << "Error in handle_outgoing()" << std::endl;
+                co_return;
+            }
         }
     }
 

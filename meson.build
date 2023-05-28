@@ -2,7 +2,7 @@ project('vpn-srver', 'cpp',
     version : '1.0',
     license : 'gpl',
     meson_version : '>= 0.61.2',
-    default_options : [ 'warning_level=everything', 'buildtype=debugoptimized', 'cpp_std=c++23', 'werror=false' ]
+    default_options : [ 'warning_level=everything', 'buildtype=debugoptimized', 'cpp_std=c++20', 'werror=false' ]
 )
 
 cpp_flags = [
@@ -11,7 +11,8 @@ cpp_flags = [
 
 cpp_warn_blacklist = [
   '-Wno-suggest-attribute=pure', '-Wno-padded', '-Wno-c++98-compat', '-Wno-c++98-compat-pedantic',
-  '-Wno-global-constructors', '-Wno-newline-eof'
+  '-Wno-global-constructors', '-Wno-newline-eof', '-Wno-null-dereference', '-Wno-switch-default',
+  '-Wno-missing-declarations', '-Wno-unused-parameter', '-Wno-effc++'
 ]
 
 compiler = meson.get_compiler('cpp')

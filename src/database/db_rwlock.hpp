@@ -13,7 +13,7 @@ class DB_RWLock
 friend class EntryGuard;
 public:
     DB_RWLock(boost::asio::io_context& ctx, boost::asio::ip::network_v4 net)
-        : m_database(ctx, net)
+        : m_rwlock{}, m_database(ctx, net)
     {
 
     }
