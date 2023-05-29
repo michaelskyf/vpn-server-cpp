@@ -8,7 +8,6 @@ subdir('mq')
 subdir('database')
 subdir('connection')
 subdir('acceptor')
-subdir('tun')
 
 libvpn = static_library(
     'vpn',

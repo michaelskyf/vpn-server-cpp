@@ -20,6 +20,7 @@ auto TCPStream::read_exact(char* data, size_t size) -> boost::asio::awaitable<bo
         }
         read_bytes += tmp;
     }
+    
     co_return true;
 }
 
@@ -37,5 +38,6 @@ auto TCPStream::write_exact(char* data, size_t size) -> boost::asio::awaitable<b
         }
         written_bytes += tmp;
     }
+
     co_return true;
 }

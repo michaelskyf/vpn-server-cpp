@@ -1,6 +1,7 @@
 #include "connection.hpp"
 #include "database/entry_guard.hpp"
 #include <boost/asio/detached.hpp>
+#include <boost/asio/ip/address.hpp>
 #include <mq/mq.hpp>
 #include <boost/asio/use_future.hpp>
 #include <boost/none.hpp>
@@ -38,6 +39,11 @@ namespace
             auto mq_tx_option = db_guard.get(packet.dst_address().get());
             if(mq_tx_option.has_value() == false)
             {
+                // Hack to make packets flow to TUN
+                // TODO: Replace with class Router
+                std::cout << "incoming(): " << packet.dst_address().get() << std::endl;
+                auto mq_tx = db_guard.get(boost::asio::ip::address::from_string("10.10.10.1")).value();
+                co_await mq_tx.async_send(packet);
                 continue;
             }
 

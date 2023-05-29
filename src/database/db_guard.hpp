@@ -13,13 +13,11 @@
 #include <mq/mq.hpp>
 #include "entry_guard.hpp"
 
-namespace ip = boost::asio::ip;
-
 // Used for asynchronous access to database containing ip's and mq's
 class DBGuard
 {
 public:
-    DBGuard(boost::asio::io_context& ctx, ip::network_v4 net)
+    DBGuard(boost::asio::io_context& ctx, boost::asio::ip::network_v4 net)
         : m_database_rwlock{std::make_shared<DB_RWLock>(ctx, net)}
     {
 
@@ -36,7 +34,7 @@ public:
         return {{EntryGuard(m_database_rwlock, option.get().first), option.get().second}};
     }
 
-    auto register_with_ip(ip::address address) -> boost::optional<std::pair<EntryGuard, Receiver>>
+    auto register_with_ip(boost::asio::ip::address address) -> boost::optional<std::pair<EntryGuard, Receiver>>
     {
         auto option = m_database_rwlock->register_with_ip(address);
         if(option.has_value() == false)
@@ -47,7 +45,7 @@ public:
         return {{EntryGuard(m_database_rwlock, option.get().first), option.get().second}};
     }
 
-    auto get(ip::address address) -> boost::optional<Sender>
+    auto get(boost::asio::ip::address address) -> boost::optional<Sender>
     {
         return m_database_rwlock->get(address);
     }
