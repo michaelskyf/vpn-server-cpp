@@ -5,7 +5,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/use_awaitable.hpp>
 
-class TCPStream : public AsyncStream
+class TCPStream final: public AsyncStream
 {
 public:
     TCPStream(boost::asio::ip::tcp::socket&&);

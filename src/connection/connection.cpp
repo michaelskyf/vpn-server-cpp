@@ -98,7 +98,7 @@ namespace
 }
 
 /// Initialize the connection and run in/out handlers
-auto handle_client(boost::asio::io_context& ctx, std::unique_ptr<AsyncStream> stream, DBGuard db_guard) -> boost::asio::awaitable<void>
+auto handle_client(boost::asio::io_context& ctx, std::shared_ptr<AsyncStream> stream, DBGuard db_guard) -> boost::asio::awaitable<void>
 {
     auto handshake_option = co_await handle_handshake(*stream, db_guard);
     if(handshake_option.has_value() == false)
