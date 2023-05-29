@@ -16,7 +16,7 @@ using namespace boost::asio;
 int main()
 {
     io_context ctx;
-    auto bind_address = ip::address::from_string("127.0.0.1");
+    auto bind_address = ip::address::from_string("0.0.0.0");
     ip::tcp::endpoint endpoint(bind_address, 1337);
     ip::tcp::acceptor acceptor(ctx, endpoint);
 

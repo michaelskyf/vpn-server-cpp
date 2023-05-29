@@ -1,5 +1,6 @@
 #include "connection.hpp"
 #include "database/entry_guard.hpp"
+#include <boost/asio/detached.hpp>
 #include <mq/mq.hpp>
 #include <boost/asio/use_future.hpp>
 #include <boost/none.hpp>
@@ -21,11 +22,11 @@ struct __attribute__((packed)) handshake_reply
 
 namespace
 {
-    auto handle_incoming(AsyncStream& stream, EntryGuard& ip_guard, DBGuard& db_guard) -> boost::asio::awaitable<void>
+    auto handle_incoming(std::shared_ptr<AsyncStream> stream, std::shared_ptr<EntryGuard> ip_guard, DBGuard db_guard) -> boost::asio::awaitable<void>
     {
         while(true) // TODO shutdown
         {
-            auto packet_option = co_await Packet::from_stream(stream);
+            auto packet_option = co_await Packet::from_stream(*stream);
             if(packet_option.has_value() == false)
             {
                 std::cerr << "Error in handle_incoming()" << std::endl;
@@ -34,7 +35,7 @@ namespace
 
             auto packet = packet_option.value();
 
-            auto mq_tx_option = db_guard.get(packet.dst_address());
+            auto mq_tx_option = db_guard.get(packet.dst_address().get());
             if(mq_tx_option.has_value() == false)
             {
                 continue;
@@ -45,12 +46,12 @@ namespace
         }
     }
 
-    auto handle_outgoing(AsyncStream& stream, EntryGuard& ip_guard, Receiver& mq_rx) -> boost::asio::awaitable<void>
+    auto handle_outgoing(std::shared_ptr<AsyncStream> stream, std::shared_ptr<EntryGuard> ip_guard, Receiver mq_rx) -> boost::asio::awaitable<void>
     {
         while(true) // TODO shutdown
         {
             auto packet = co_await mq_rx.async_receive();
-            auto written_option = co_await stream.write_exact(packet.data(), packet.size());
+            auto written_option = co_await stream->write_exact(packet.data(), packet.size());
             if(written_option == false)
             {
                 std::cerr << "Error in handle_outgoing()" << std::endl;
@@ -82,10 +83,10 @@ namespace
         auto[ip_guard, mq_rx] = std::move(register_option.get());
         handshake_reply reply{};
 
-        reply.mtu = 1500;
+        reply.mtu = htons(1500);
         reply.status = 0;
-        reply.mask = 0xFFFFFF00; // TODO
-        reply.address = ip_guard.get().to_v4().to_uint();
+        reply.mask = htonl(0xffffff00); // TODO
+        reply.address = htonl(ip_guard.get().to_v4().to_uint());
 
         auto reply_option = co_await stream.write_exact(reinterpret_cast<char*>(&reply), sizeof(reply));
         if(reply_option == false)
@@ -107,10 +108,8 @@ auto handle_client(boost::asio::io_context& ctx, std::shared_ptr<AsyncStream> st
     }
 
     auto[ip_guard, mq_rx] = std::move(handshake_option.get());
+    auto ip_guard_ptr = std::make_shared<EntryGuard>(std::move(ip_guard));
 
-    auto frx = boost::asio::co_spawn(ctx, handle_incoming(*stream, ip_guard, db_guard), boost::asio::use_future);
-    auto ftx = boost::asio::co_spawn(ctx, handle_outgoing(*stream, ip_guard, mq_rx), boost::asio::use_future);
-
-    frx.wait();
-    ftx.wait();
+    boost::asio::co_spawn(ctx, handle_incoming(stream, ip_guard_ptr, db_guard), boost::asio::detached);
+    boost::asio::co_spawn(ctx, handle_outgoing(stream, ip_guard_ptr, mq_rx), boost::asio::detached);
 }

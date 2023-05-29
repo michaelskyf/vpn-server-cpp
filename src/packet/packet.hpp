@@ -5,7 +5,6 @@
 #include <boost/optional.hpp>
 #include <vector>
 #include "stream/stream.hpp"
-#include <linux/ip.h>
 
 class Packet
 {
@@ -21,8 +20,8 @@ public:
     auto data() -> char*;
     auto size() -> size_t;
 
-    auto src_address() -> boost::asio::ip::address;
-    auto dst_address() -> boost::asio::ip::address;
+    auto src_address() -> boost::optional<boost::asio::ip::address>;
+    auto dst_address() -> boost::optional<boost::asio::ip::address>;
     auto check() -> bool;
 
 private:    

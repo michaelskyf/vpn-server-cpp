@@ -20,6 +20,8 @@ auto TCPAcceptor::accept() -> boost::asio::awaitable<void>
     {
         auto client = co_await m_acceptor.async_accept(boost::asio::use_awaitable);
 
+		client.set_option(boost::asio::socket_base::keep_alive(true));
+
         auto stream = std::make_shared<TCPStream>(std::move(client));
 
         boost::asio::co_spawn(m_ctx, handle_client(m_ctx, stream, m_db_guard), boost::asio::detached);

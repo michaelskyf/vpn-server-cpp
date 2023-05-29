@@ -12,7 +12,7 @@ cpp_flags = [
 cpp_warn_blacklist = [
   '-Wno-suggest-attribute=pure', '-Wno-padded', '-Wno-c++98-compat', '-Wno-c++98-compat-pedantic',
   '-Wno-global-constructors', '-Wno-newline-eof', '-Wno-null-dereference', '-Wno-switch-default',
-  '-Wno-missing-declarations', '-Wno-unused-parameter', '-Wno-effc++', '-Wno-inline'
+  '-Wno-missing-declarations', '-Wno-unused-parameter', '-Wno-effc++', '-Wno-inline', '-Wno-cast-align'
 ]
 
 compiler = meson.get_compiler('cpp')
