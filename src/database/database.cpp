@@ -1,5 +1,4 @@
 #include "database.hpp"
-#include "mq.hpp"
 #include <boost/none.hpp>
 
 Database::Database(boost::asio::io_context& ctx, boost::asio::ip::network_v4 net)

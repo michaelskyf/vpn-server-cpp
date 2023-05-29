@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 #include "address_pool.hpp"
-#include "mq.hpp"
+#include <mq/mq.hpp>
 
 using ip_mqrx_pair = std::pair<boost::asio::ip::address, Receiver>;
 

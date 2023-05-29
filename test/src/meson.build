@@ -1,6 +1,7 @@
 test_sources = [
     'mq.cpp',
 	'database.cpp',
+	'connection.cpp',
 ]
 
 e = executable('vpn', test_sources,

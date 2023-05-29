@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mq.hpp"
+#include <mq/mq.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ip/address.hpp>
 #include <boost/asio/ip/network_v4.hpp>

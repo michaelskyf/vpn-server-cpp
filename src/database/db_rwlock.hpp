@@ -3,8 +3,8 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <boost/optional.hpp>
-#include "database/database.hpp"
-#include "mq.hpp"
+#include "database.hpp"
+#include <mq/mq.hpp>
 
 using ip_mqrx_pair = std::pair<boost::asio::ip::address, Receiver>;
 

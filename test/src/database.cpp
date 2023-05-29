@@ -1,17 +1,7 @@
-#include "mq.hpp"
-#include "packet.hpp"
-#include <boost/asio/co_spawn.hpp>
-#include <boost/asio/detached.hpp>
-#include <boost/asio/io_context.hpp>
-#include <boost/asio/ip/address.hpp>
-#include <boost/asio/ip/address_v4.hpp>
-#include <boost/asio/ip/network_v4.hpp>
-#include <boost/asio.hpp>
-#include <boost/asio/use_future.hpp>
 #include <gtest/gtest.h>
 
-#include <db_guard.hpp>
-#include <vector>
+#include <database/database.hpp>
+#include <database/db_guard.hpp>
 
 using namespace boost::asio;
 

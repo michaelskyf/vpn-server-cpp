@@ -14,7 +14,7 @@ public:
     }
 
     EntryGuard(const EntryGuard&) = delete;
-    EntryGuard(EntryGuard&& other)
+    EntryGuard(EntryGuard&& other) noexcept
         : m_database_rwlock{other.m_database_rwlock}, m_address{other.m_address}, m_destroyed{other.m_destroyed}
     {
         other.m_destroyed = true;

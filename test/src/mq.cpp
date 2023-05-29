@@ -1,15 +1,5 @@
-#include "packet.hpp"
-#include <boost/asio/awaitable.hpp>
-#include <boost/asio/co_spawn.hpp>
-#include <boost/asio/detached.hpp>
-#include <boost/asio/strand.hpp>
-#include <cstdio>
 #include <gtest/gtest.h>
-#include <memory>
-#include <mq.hpp>
-#include <boost/asio.hpp>
-#include <boost/asio/spawn.hpp>
-#include <vector>
+#include <mq/mq.hpp>
 
 namespace simple
 {

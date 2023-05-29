@@ -10,8 +10,8 @@
 
 #include "database/database.hpp"
 #include "database/db_rwlock.hpp"
-#include "mq.hpp"
-#include "database/entry_guard.hpp"
+#include <mq/mq.hpp>
+#include "entry_guard.hpp"
 
 namespace ip = boost::asio::ip;
 

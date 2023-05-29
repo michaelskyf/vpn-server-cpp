@@ -8,7 +8,7 @@
 #include <boost/optional/optional.hpp>
 #include <memory>
 
-#include "packet.hpp"
+#include <packet/packet.hpp>
 
 using Channel = boost::asio::experimental::concurrent_channel<void(
         boost::system::error_code, Packet)>;
