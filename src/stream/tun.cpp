@@ -136,8 +136,6 @@ auto Tun::handle_incoming(std::shared_ptr<Tun> stream, DBGuard db_guard) -> boos
 
 		auto packet = packet_option.value();
 
-		std::cout << "incoming to() " << packet.dst_address() << std::endl;
-
 		auto mq_tx_option = db_guard.get(packet.dst_address().value());
 		if(mq_tx_option.has_value() == false)
         {
@@ -154,7 +152,6 @@ auto Tun::handle_outgoing(std::shared_ptr<Tun> stream, Receiver mq_rx) -> boost:
 	while(true) // TODO shutdown
     {
         auto packet = co_await mq_rx.async_receive();
-		std::cout << packet.dst_address() << std::endl;
         auto written_option = co_await stream->write_packet(packet);
         if(written_option == false)
         {

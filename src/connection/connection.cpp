@@ -41,7 +41,6 @@ namespace
             {
                 // Hack to make packets flow to TUN
                 // TODO: Replace with class Router
-                std::cout << "incoming(): " << packet.dst_address().get() << std::endl;
                 auto mq_tx = db_guard.get(boost::asio::ip::address::from_string("10.10.10.1")).value();
                 co_await mq_tx.async_send(packet);
                 continue;
