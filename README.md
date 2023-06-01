@@ -5,21 +5,21 @@
 ⚠️ At the moment only Arch Linux is supported. ⚠️
 
 Compiling:
-```console
+```bash
 
-user@archlinux:~/vpn-server-cpp$ pacman -S gcc meson boost
+pacman -S gcc meson boost
 
-user@archlinux:~/vpn-server-cpp$ meson build
+meson build
 
-user@archlinux:~/vpn-server-cpp/build$ cd build
-user@archlinux:~/vpn-server-cpp/build$ ninja all
+cd build
+ninja all
 
 ```
 
 Testing:
-```console
+```bash
 
-user@archlinux:~/vpn-server-cpp/build$ ninja test
+ninja test
 
 ```
 
