@@ -11,6 +11,9 @@ class TCPAcceptor final
 public:
     TCPAcceptor(boost::asio::io_context& ctx, DBGuard db_guard, boost::asio::ip::tcp::acceptor&& acceptor);
 
+    /**
+     *
+     */
     auto accept() -> boost::asio::awaitable<void>;
 
 private:

@@ -1,0 +1,212 @@
+@startuml
+
+
+
+
+
+/' Objects '/
+
+class AddressPool {
+	+AddressPool(boost::asio::ip::network_v4 net)
+	+insert(boost::asio::ip::address address) : auto
+	+remove() : auto
+	+remove_specific(boost::asio::ip::address address) : auto
+	-m_net : boost::asio::ip::network_v4
+	-m_hosts : std::unordered_map<boost::asio::ip::address, bool>
+}
+
+
+abstract class AsyncStream {
+	+~AsyncStream()
+	+{abstract} read_exact(char*, size_t) : auto
+	+{abstract} write_exact(char*, size_t) : auto
+}
+
+
+class DBGuard {
+	+DBGuard(boost::asio::io_context& ctx, boost::asio::ip::network_v4 net)
+	+get(boost::asio::ip::address address) : auto
+	+register_with_ip(boost::asio::ip::address address) : auto
+	+register_without_ip() : auto
+	-m_database_rwlock : std::shared_ptr<DB_RWLock>
+}
+
+
+class DB_RWLock {
+	+DB_RWLock(boost::asio::io_context& ctx, boost::asio::ip::network_v4 net)
+	-m_database : Database
+	+get(boost::asio::ip::address address) : auto
+	+register_with_ip(boost::asio::ip::address address) : auto
+	+register_without_ip() : auto
+	-unregister(boost::asio::ip::address address) : auto
+	-m_rwlock : boost::shared_mutex
+}
+
+
+class Database {
+	+Database(boost::asio::io_context& ctx, boost::asio::ip::network_v4 net)
+	-m_address_pool : AddressPool
+	+get(boost::asio::ip::address) : auto
+	+register_with_ip(boost::asio::ip::address) : auto
+	+register_without_ip() : auto
+	-unregister(boost::asio::ip::address) : auto
+	-m_ctx : boost::asio::io_context&
+	-m_map : std::unordered_map<boost::asio::ip::address, Sender>
+}
+
+
+class EntryGuard {
+	+EntryGuard(std::shared_ptr<DB_RWLock> db_rwlock, boost::asio::ip::address address)
+	+EntryGuard(EntryGuard&& other)
+	+~EntryGuard()
+	+get() : auto
+	-m_destroyed : bool
+	-m_address : boost::asio::ip::address
+	-m_database_rwlock : std::shared_ptr<DB_RWLock>
+}
+
+
+class Packet {
+	-Packet(char* array, size_t size)
+	+Packet()
+	+check() : auto
+	+data() : auto
+	+dst_address() : auto
+	+{static} from_bytes(char* array, size_t size) : auto
+	+{static} from_bytes_unchecked(char* array, size_t size) : auto
+	+{static} from_stream(AsyncStream& stream) : auto
+	+size() : auto
+	+src_address() : auto
+	-m_data : std::vector<char>
+}
+
+
+class Receiver {
+	+Receiver(std::shared_ptr<Channel> &)
+	+async_receive() : auto
+	-m_channel : std::shared_ptr<Channel>
+}
+
+
+class Sender {
+	+Sender(std::shared_ptr<Channel> &)
+	+async_send(Packet packet) : auto
+	-m_channel : std::shared_ptr<Channel>
+}
+
+
+class TCPAcceptor {
+	+TCPAcceptor(boost::asio::io_context& ctx, DBGuard db_guard, boost::asio::ip::tcp::acceptor&& acceptor)
+	-m_db_guard : DBGuard
+	+accept() : auto
+	-m_ctx : boost::asio::io_context&
+	-m_acceptor : boost::asio::ip::tcp::acceptor
+}
+
+
+class TCPStream {
+	+TCPStream(boost::asio::ip::tcp::socket& &)
+	+read_exact(char* data, size_t size) : auto
+	+write_exact(char* data, size_t size) : auto
+	-m_socket : boost::asio::ip::tcp::socket
+}
+
+
+class Tun {
+	-Tun(boost::asio::posix::stream_descriptor& &, std::string_view name, EntryGuard&& entry_guard)
+	-m_entry_guard : EntryGuard
+	+{static} create(boost::asio::io_context& ctx, std::string_view name, EntryGuard entry_guard, unsigned int netmask_prefix) : auto
+	+{static} handle_incoming(std::shared_ptr<Tun> stream, DBGuard db_guard) : auto
+	+{static} handle_outgoing(std::shared_ptr<Tun> stream, Receiver mq_rx) : auto
+	+name() : auto {query}
+	+read_packet() : auto
+	+write_packet(Packet &) : auto
+	-m_socket : boost::asio::posix::stream_descriptor
+	-m_name : std::string
+}
+
+
+
+
+
+/' Inheritance relationships '/
+
+.AsyncStream <|-- .TCPStream
+
+
+
+
+
+/' Aggregation relationships '/
+
+.DBGuard *-- .DB_RWLock
+
+
+.DB_RWLock *-- .Database
+
+
+.Database *-- .AddressPool
+
+
+.Database *-- .Sender
+
+
+.EntryGuard *-- .DB_RWLock
+
+
+.TCPAcceptor *-- .DBGuard
+
+
+.Tun *-- .EntryGuard
+
+
+
+
+
+
+/' Nested objects '/
+
+
+
+@enduml
+
+
+/'@startuml vpn-server-cpp
+allow_mixing
+
+class "(Any Stream)Acceptor" {
+
+}
+
+rectangle Database {
+
+    class DBGuard {
+        register_without_ip()
+        register_with_ip()
+        get()
+    }
+
+    class DB_RWLock{
+    
+    }
+
+    class Database{
+
+    }
+
+    class DBEntryGuard{
+
+    }
+
+    DB_RWLock.> DBGuard: extends
+    Database.> DB_RWLock: extends
+
+    DBGuard -- DBEntryGuard: guards the result
+}
+
+rectangle Connection {
+    rectangle lol()
+}
+
+
+@enduml'/

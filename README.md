@@ -1,7 +1,7 @@
 # vpn-server-cpp
 ## _Experimental VPN server written in C++ using boost.asio with coroutines_
 
-## Build
+## Building
 ⚠️ At the moment only Arch Linux is supported. ⚠️
 
 Compiling:
@@ -24,3 +24,7 @@ ninja test
 ```
 
 The executable should be present at `vpn-server-cpp/build/src/vpn`
+
+## Running
+Before running make sure that you have masquarade and packet forwarding set-up
+on your server.

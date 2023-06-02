@@ -7,8 +7,13 @@
 #include <boost/optional.hpp>
 #include <boost/none.hpp>
 #include <boost/optional/optional_io.hpp>
+#include <boost/system/system_error.hpp>
+#include <cstdio>
 #include <cstring>
+#include <exception>
 #include <linux/if_tun.h>
+#include <stdexcept>
+#include <system_error>
 
 auto Tun::create(boost::asio::io_context& ctx, std::string_view name, EntryGuard entry_guard, uint netmask_prefix) -> boost::optional<Tun>
 {
@@ -80,6 +85,7 @@ auto Tun::create(boost::asio::io_context& ctx, std::string_view name, EntryGuard
 	}
 
     boost::asio::posix::stream_descriptor socket(ctx, fd);
+	socket.non_blocking(true);
 
     return Tun(std::move(socket), ifr.ifr_name, std::move(entry_guard));
 }
@@ -135,6 +141,10 @@ auto Tun::handle_incoming(std::shared_ptr<Tun> stream, DBGuard db_guard) -> boos
         }
 
 		auto packet = packet_option.value();
+		if(packet.check() == false)
+		{
+			continue;
+		}
 
 		auto mq_tx_option = db_guard.get(packet.dst_address().value());
 		if(mq_tx_option.has_value() == false)
