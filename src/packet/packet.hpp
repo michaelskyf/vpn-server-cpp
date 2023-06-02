@@ -9,20 +9,17 @@
 class Packet
 {
 public:
-    /// Invalid packet! Never use this constructor. (Used to please MQ) (Or use check())
-    Packet() = default;
-
     static auto from_bytes(char* array, size_t size) -> Packet;
     static auto from_bytes_unchecked(char* array, size_t size) -> Packet;
 
     static auto from_stream(AsyncStream& stream) -> boost::asio::awaitable<boost::optional<Packet>>;
 
-    auto data() -> char*;
-    auto size() -> size_t;
+    auto data() const -> const char*;
+    auto size() const -> size_t;
 
-    auto src_address() -> boost::optional<boost::asio::ip::address>;
-    auto dst_address() -> boost::optional<boost::asio::ip::address>;
-    auto check() -> bool;
+    auto src_address() const -> boost::optional<boost::asio::ip::address>;
+    auto dst_address() const -> boost::optional<boost::asio::ip::address>;
+    auto check() const -> bool;
 
 private:    
     Packet(char* array, size_t size);

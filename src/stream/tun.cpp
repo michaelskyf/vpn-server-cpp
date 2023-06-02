@@ -131,6 +131,7 @@ auto Tun::name() const -> std::string_view
 
 auto Tun::handle_incoming(std::shared_ptr<Tun> stream, DBGuard db_guard) -> boost::asio::awaitable<void>
 {
+	try{
 	while(true) // TODO: shutdown
 	{
 		auto packet_option = co_await stream->read_packet();
@@ -153,7 +154,12 @@ auto Tun::handle_incoming(std::shared_ptr<Tun> stream, DBGuard db_guard) -> boos
         }
 
 		auto mq_tx = mq_tx_option.get();
-        co_await mq_tx.async_send(packet);
+        co_await mq_tx.async_send(std::make_shared<Packet>(packet));
+	}
+	}
+	catch(const std::exception& ec)
+	{
+		std::cerr << ec.what() << std::endl;
 	}
 }
 
@@ -162,7 +168,7 @@ auto Tun::handle_outgoing(std::shared_ptr<Tun> stream, Receiver mq_rx) -> boost:
 	while(true) // TODO shutdown
     {
         auto packet = co_await mq_rx.async_receive();
-        auto written_option = co_await stream->write_packet(packet);
+        auto written_option = co_await stream->write_packet(const_cast<Packet&>(*packet));
         if(written_option == false)
         {
             std::cerr << "Error in handle_outgoing()" << std::endl;

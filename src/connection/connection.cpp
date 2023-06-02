@@ -35,6 +35,10 @@ namespace
             }
 
             auto packet = packet_option.value();
+            if(packet.check() == false)
+            {
+                continue;
+            }
 
             auto mq_tx_option = db_guard.get(packet.dst_address().get());
             if(mq_tx_option.has_value() == false)
@@ -42,12 +46,12 @@ namespace
                 // Hack to make packets flow to TUN
                 // TODO: Replace with class Router
                 auto mq_tx = db_guard.get(boost::asio::ip::address::from_string("10.10.10.1")).value();
-                co_await mq_tx.async_send(packet);
+                co_await mq_tx.async_send(std::make_shared<Packet>(packet));
                 continue;
             }
 
             auto mq_tx = mq_tx_option.get();
-            co_await mq_tx.async_send(packet);
+            co_await mq_tx.async_send(std::make_shared<Packet>(packet));
         }
     }
 
@@ -56,7 +60,7 @@ namespace
         while(true) // TODO shutdown
         {
             auto packet = co_await mq_rx.async_receive();
-            auto written_option = co_await stream->write_exact(packet.data(), packet.size());
+            auto written_option = co_await stream->write_exact(const_cast<char*>(packet->data()), packet->size());
             if(written_option == false)
             {
                 std::cerr << "Error in handle_outgoing()" << std::endl;

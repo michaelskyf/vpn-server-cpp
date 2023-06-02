@@ -1,4 +1,5 @@
 #include "database.hpp"
+#include "mq/mq.hpp"
 #include <boost/none.hpp>
 
 Database::Database(boost::asio::io_context& ctx, boost::asio::ip::network_v4 net)
@@ -18,8 +19,9 @@ auto Database::register_without_ip() -> boost::optional<ip_mqrx_pair>
 
     auto address = address_option.value();
     auto mq = std::make_shared<Channel>(m_ctx, 64); // 64 packets can be at the same time in the queue
-    auto sender = Sender(mq);
-    auto receiver = Receiver(mq);
+    auto sub = std::make_shared<Subject>();
+    auto sender = Sender(sub);
+    auto receiver = Receiver(sub);
 
     m_map.emplace(address, sender);
 
@@ -33,7 +35,7 @@ auto Database::register_with_ip(boost::asio::ip::address address) -> boost::opti
         return boost::none;
     }
 
-    auto mq = std::make_shared<Channel>(m_ctx, 64); // 64 packets can be at the same time in the queue
+    auto mq = std::make_shared<Subject>(); // 64 packets can be at the same time in the queue
     auto sender = Sender(mq);
     auto receiver = Receiver(mq);
 

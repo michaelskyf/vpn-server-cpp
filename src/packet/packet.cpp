@@ -3,6 +3,7 @@
 #include <boost/asio/ip/address_v4.hpp>
 #include <boost/none.hpp>
 #include <netinet/ip.h>
+#include <stdexcept>
 
 //auto Packet::from_bytes(char* array, size_t size) -> Packet;
 
@@ -20,6 +21,11 @@ auto Packet::from_stream(AsyncStream& stream) -> boost::asio::awaitable<boost::o
     {
         co_return boost::none;
     }
+
+    if(hdr->ip_v != 4) // TODO: ipv6
+    {
+        co_return boost::none;
+    }
     
     if(ntohs(hdr->ip_len) > 1500 || ntohs(hdr->ip_len) < sizeof(ip))
     {
@@ -34,44 +40,44 @@ auto Packet::from_stream(AsyncStream& stream) -> boost::asio::awaitable<boost::o
     co_return Packet::from_bytes_unchecked(packet_buffer, ntohs(hdr->ip_len));
 }
 
-auto Packet::data() -> char*
+auto Packet::data() const -> const char*
 {
     return m_data.data();
 }
 
-auto Packet::size() -> size_t
+auto Packet::size() const -> size_t
 {
     return m_data.size();
 }
 
-auto Packet::src_address() -> boost::optional<boost::asio::ip::address>
+auto Packet::src_address() const -> boost::optional<boost::asio::ip::address>
 {
     if(check() == true)
     {
-        return boost::asio::ip::address(boost::asio::ip::address_v4(ntohl(reinterpret_cast<ip*>(data())->ip_src.s_addr)));
+        return boost::asio::ip::address(boost::asio::ip::address_v4(ntohl(reinterpret_cast<const ip*>(data())->ip_src.s_addr)));
     }
 
     return boost::none;
 }
 
-auto Packet::dst_address() -> boost::optional<boost::asio::ip::address>
+auto Packet::dst_address() const -> boost::optional<boost::asio::ip::address>
 {
     if(check() == true)
     {
-        return boost::asio::ip::address(boost::asio::ip::address_v4(ntohl(reinterpret_cast<ip*>(data())->ip_dst.s_addr)));
+        return boost::asio::ip::address(boost::asio::ip::address_v4(ntohl(reinterpret_cast<const ip*>(data())->ip_dst.s_addr)));
     }
 
     return boost::none;
 }
 
-auto Packet::check() -> bool
+auto Packet::check() const -> bool
 {
     if(m_data.size() < sizeof(ip))
     {
         return false;
     }
 
-    ip* packet = reinterpret_cast<ip*>(data());
+    auto* packet = reinterpret_cast<const ip*>(data());
 
     // TODO: allow ipv6
     if(packet->ip_v != 4)
