@@ -98,3 +98,9 @@ Packet::Packet(char* array, size_t size)
 {
 
 }
+
+Packet::Packet(Packet&& other)
+    : m_data{std::move(other.m_data)}
+{
+
+}

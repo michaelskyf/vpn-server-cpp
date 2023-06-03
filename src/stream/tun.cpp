@@ -141,7 +141,7 @@ auto Tun::handle_incoming(std::shared_ptr<Tun> stream, DBGuard db_guard) -> boos
             co_return;
         }
 
-		auto packet = packet_option.value();
+		auto packet = std::move(packet_option.value());
 		if(packet.check() == false)
 		{
 			continue;
@@ -154,7 +154,7 @@ auto Tun::handle_incoming(std::shared_ptr<Tun> stream, DBGuard db_guard) -> boos
         }
 
 		auto mq_tx = mq_tx_option.get();
-        co_await mq_tx.async_send(std::make_shared<Packet>(packet));
+        co_await mq_tx.async_send(std::make_shared<Packet>(std::move(packet)));
 	}
 	}
 	catch(const std::exception& ec)

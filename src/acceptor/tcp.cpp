@@ -8,7 +8,7 @@
 #include <boost/asio/use_awaitable.hpp>
 #include <memory>
 
-TCPAcceptor::TCPAcceptor(boost::asio::io_context& ctx, DBGuard db_guard, boost::asio::ip::tcp::acceptor&& acceptor)
+TCPAcceptor::TCPAcceptor(asio::any_io_executor& ctx, DBGuard db_guard, boost::asio::ip::tcp::acceptor&& acceptor)
     : m_ctx{ctx}, m_db_guard{db_guard}, m_acceptor{std::move(acceptor)}
 {
 

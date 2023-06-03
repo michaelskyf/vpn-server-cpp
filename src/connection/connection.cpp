@@ -20,7 +20,7 @@ struct __attribute__((packed)) handshake_reply
 	uint32_t mask;
 	uint16_t mtu;
 };
-
+/*
 namespace
 {
     auto handle_incoming(std::shared_ptr<AsyncStream> stream, std::shared_ptr<EntryGuard> ip_guard, DBGuard db_guard) -> boost::asio::awaitable<void>
@@ -34,7 +34,7 @@ namespace
                 co_return;
             }
 
-            auto packet = packet_option.value();
+            auto packet = std::move(packet_option.value());
             if(packet.check() == false)
             {
                 continue;
@@ -46,12 +46,12 @@ namespace
                 // Hack to make packets flow to TUN
                 // TODO: Replace with class Router
                 auto mq_tx = db_guard.get(boost::asio::ip::address::from_string("10.10.10.1")).value();
-                co_await mq_tx.async_send(std::make_shared<Packet>(packet));
+                co_await mq_tx.async_send(std::make_shared<Packet>(std::move(packet)));
                 continue;
             }
 
             auto mq_tx = mq_tx_option.get();
-            co_await mq_tx.async_send(std::make_shared<Packet>(packet));
+            co_await mq_tx.async_send(std::make_shared<Packet>(std::move(packet)));
         }
     }
 
@@ -121,4 +121,36 @@ auto handle_client(boost::asio::io_context& ctx, std::shared_ptr<AsyncStream> st
 
     boost::asio::co_spawn(ctx, handle_incoming(stream, ip_guard_ptr, db_guard), boost::asio::detached);
     boost::asio::co_spawn(ctx, handle_outgoing(stream, ip_guard_ptr, mq_rx), boost::asio::detached);
+}*/
+
+auto ConnectionHandler::incoming(std::shared_ptr<AsyncStream> stream, DBGuard db_guard) -> Task<void>
+{
+    while(true) // TODO shutdown
+    {
+        auto packet_option = co_await stream->read_packet();
+        if(packet_option.has_value() == false)
+        {
+            std::cerr << "Error in incoming()" << std::endl;
+            co_return;
+        }
+
+        auto packet = std::move(packet_option.value());
+        if(packet.check() == false)
+        {
+            continue;
+        }
+
+        auto mq_tx_option = db_guard.get(packet.dst_address());
+        if(mq_tx_option.has_value() == false)
+        {
+            // Hack to make packets flow to TUN
+            // TODO: Replace with class Router
+            auto mq_tx = db_guard.get(boost::asio::ip::address::from_string("10.10.10.1")).value();
+            co_await mq_tx.async_send(std::make_shared<Packet>(std::move(packet)));
+            continue;
+        }
+
+        auto mq_tx = mq_tx_option.get();
+        co_await mq_tx.async_send(std::make_shared<Packet>(std::move(packet)));
+    }
 }
