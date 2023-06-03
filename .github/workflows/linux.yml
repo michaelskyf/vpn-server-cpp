@@ -1,0 +1,43 @@
+name: GNU/Linux
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+    defaults:
+      run:
+        shell: bash
+
+jobs:
+  linux:
+    name: ${{matrix.compiler}}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: ['g++', 'clang++']
+
+    steps:
+      - name: Checkout respository
+        uses: actions/checkout@v3
+
+      - name: Update git submodules
+        run: git submodule update --init
+
+      - name: Install dependencies
+        run: sudo apt install python3-pip; sudo pip3 install meson ninja
+
+      - name: Run Meson
+        run: CXX=${{matrix.compiler}} meson setup build -Db_sanitize=address
+
+      - name: Compile the project
+        run: ninja -C build
+
+      - name: Run tests
+        run: ninja -C build test
+
+      - name: Read logs
+        if: success() || failure()
+        run: cat build/meson-logs/testlog.txt | cat

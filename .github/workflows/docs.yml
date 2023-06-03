@@ -1,0 +1,34 @@
+name: Docs
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Requirements
+      run: sudo apt install doxygen sphinx-doc python3 texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended latexmk texlive-xetex xindy
+        && pip3 install sphinx-rtd-theme
+        && pip3 install breathe
+        && pip3 install sphinx-sitemap
+
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Build the documentation
+      run: mkdir build; cd build; cmake ..; make docs
+    
+    - name: Add .nojekyll
+      run: touch build/docs/build/html/.nojekyll
+
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages # The branch the action should deploy to.
+        FOLDER: build/docs/build/html # The folder the action should deploy.
