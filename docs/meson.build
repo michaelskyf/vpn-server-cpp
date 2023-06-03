@@ -1,3 +1,7 @@
+build_docs = get_option('docs')
+
+if not build_docs.disabled()
+
 sphinx = find_program('sphinx-build')
 doxygen = find_program('doxygen')
 
@@ -18,3 +22,5 @@ build_docs = custom_target('build_docs',
     output: 'vpn-server-cpp',
     command: [sphinx, in_dir/'source', out_dir],
 )
+
+endif

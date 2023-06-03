@@ -27,6 +27,6 @@ endforeach
 
 inc = [ include_directories('include', get_option('includedir')) ]
 
-# subdir('src')
+subdir('src')
 # subdir('test')
  subdir('docs')
