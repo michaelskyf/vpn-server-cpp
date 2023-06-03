@@ -9,3 +9,9 @@ option('docs',
   value : 'disabled',
   description : 'Enables docs.'
 )
+
+option('build',
+  type : 'feature',
+  value : 'enabled',
+  description : 'Build the program.'
+)

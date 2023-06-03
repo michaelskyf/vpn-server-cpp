@@ -27,7 +27,7 @@ jobs:
         run: git submodule update --init
 
       - name: Install dependencies
-        run: sudo apt install python3-pip; sudo pip3 install meson ninja
+        run: sudo apt update && sudo apt install python3-pip; sudo pip3 install meson ninja
 
       - name: Run Meson
         run: CXX=${{matrix.compiler}} meson setup build -Db_sanitize=address

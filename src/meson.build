@@ -1,3 +1,7 @@
+build = get_option('build')
+
+if not build.disabled()
+
 boost_dep = dependency('boost', modules: [ 'thread', 'coroutine' ])
 
 source_files = files()
@@ -21,3 +25,5 @@ e = executable(
 	link_with: libvpn,
     install: true
 )
+
+endif

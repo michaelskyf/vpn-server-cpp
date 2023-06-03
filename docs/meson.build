@@ -20,7 +20,7 @@ Doxyfile = configure_file(
 build_docs = custom_target('build_docs',
     input: 'meson.build',
     output: 'vpn-server-cpp',
-    command: [sphinx, in_dir/'source', out_dir],
+    command: [sphinx, in_dir/'source', out_dir/'html'],
 )
 
 endif
