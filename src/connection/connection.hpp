@@ -8,6 +8,7 @@
 #include <boost/asio.hpp>
 #include <stream/stream.hpp>
 
+/*! in/out handlers for connection */
 class ConnectionHandler
 {
 public:

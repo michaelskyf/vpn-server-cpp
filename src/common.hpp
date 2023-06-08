@@ -1,3 +1,5 @@
+// Used commonly throughout the project
+
 #pragma once
 
 #include <boost/asio.hpp>
@@ -5,7 +7,6 @@
 #include <boost/asio/awaitable.hpp>
 #include <boost/outcome/result.hpp>
 
-// Used commonly throughout the project
 
 namespace asio = boost::asio;
 

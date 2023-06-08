@@ -7,11 +7,15 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <stream/tcp.hpp>
 
+/*! Acceptor for TCP connections */
 class TCPAcceptor final
 {
 public:
     TCPAcceptor(asio::any_io_executor& ctx, DBGuard db_guard, asio::ip::tcp::acceptor&& acceptor);
 
+	/**
+	 * @brief Waits for a new connection and calls ConnectionHandler
+	 */
     auto accept() -> Task<void>;
 
 private:

@@ -4,6 +4,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
+/*! Implementation of AsyncStream interface for TCP connection */
 class TCPStream final: public AsyncStream
 {
 public:

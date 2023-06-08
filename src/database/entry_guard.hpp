@@ -4,6 +4,7 @@
 #include <memory>
 #include "db_rwlock.hpp"
 
+/*! Database client entry guard - on destruction calls Database::unregister() */
 class EntryGuard
 {
 public:
